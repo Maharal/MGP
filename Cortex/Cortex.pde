@@ -48,7 +48,9 @@ class Neuron {
   public void connect(Neuron n) {
     isToDraw = true;
     n.isToDraw = true;
+    if (neighbors.size() < 10) {
     neighbors.add(n);
+    }
   }
 
   public void stimulate() {
@@ -76,8 +78,8 @@ float t;
 
 void setup() {
   fullScreen(P3D);
-  cam = new Camera(0, 0, 250, 0, 0, 0);
-  column = new CorticalColumn(0, 0, 0, 150, 100, 5, 20);
+  cam = new Camera(0, 0, 300, 0, 0, 0);
+  column = new CorticalColumn(0, 0, 0, 400, 100, 6, 50);
   noCursor();
 }
 
@@ -104,7 +106,8 @@ class CorticalColumn {
   }
   
   public void stimulate() {
-    layers[0].stimulate();
+    layers[0].stimulateUpper();
+    layers[layers.length-1].stimulateDown();
   }
   
   public void update() {
@@ -275,13 +278,13 @@ class Layer {
     if (neighborBottom != null) {
       for (var n : downNeurons) {
         for (var m : neighborBottom.downNeurons) {
-          if (2 * dist(n.x, n.y, n.z - n.h, m.x, m.y, m.z) < r && random(0, 1) <= 10) {
+          if (4 * dist(n.x, n.y, n.z - n.h, m.x, m.y, m.z) < r) {
             n.connect(m);
           }
         }
 
         for (var m : neighborBottom.upperNeurons) {
-          if (2 * dist(n.x, n.y, n.z - n.h, m.x, m.y, m.z) < r && random(0, 1) <= 10) {
+          if (4 * dist(n.x, n.y, n.z - n.h, m.x, m.y, m.z) < r) {
             n.connect(m);
           }
         }
@@ -291,13 +294,13 @@ class Layer {
     if (neighborTop != null) {
       for (var n : upperNeurons) {
         for (var m : neighborTop.upperNeurons) {
-          if (2 * dist(n.x, n.y, n.z + n.h, m.x, m.y, m.z) < r && random(0, 1) <= 10) {
+          if (4 * dist(n.x, n.y, n.z + n.h, m.x, m.y, m.z) < r) {
             n.connect(m);
           }
         }
 
         for (var m : neighborTop.downNeurons) {
-          if (2 * dist(n.x, n.y, n.z + n.h, m.x, m.y, m.z) < r && random(0, 1) <= 10) {
+          if (4 * dist(n.x, n.y, n.z + n.h, m.x, m.y, m.z) < r) {
             n.connect(m);
           }
         }
@@ -305,8 +308,12 @@ class Layer {
     }
   }
   
-  public void stimulate() {
+  public void stimulateUpper() {
       for (var n : upperNeurons)
+        n.stimulate();
+  }
+  public void stimulateDown() {
+      for (var n : downNeurons)
         n.stimulate();
   }
 
